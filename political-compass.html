@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>政治罗盘 · Political Compass</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root {
+  --bg: #f5f3ef;
+  --surf: #eceae5;
+  --card: #ffffff;
+  --b1: #e2dfd8;
+  --b2: #ccc9c0;
+  --tx: #1c1a17;
+  --sub: #5c5a54;
+  --dim: #9c9a94;
+  --ec: #1a6fb5;
+  --so: #b52848;
+  --en: #1a8c58;
+  --et: #b57800;
+  --ix: #5c3db5;
+  --ok: #1a8c58;
+  --ng: #b52848;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; background: #f5f3ef; }
+body { background: #f5f3ef; color: var(--tx); font-family: "Noto Sans SC", sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+#wrap { background: #f5f3ef; min-height: 100vh; width: 100%; }
+
+/* progress */
+#pb { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 3px; background: var(--b1); }
+#pf { height: 100%; background: linear-gradient(90deg, var(--ec), var(--ix)); transition: width .3s ease; width: 0%; }
+
+/* screens */
+.sc { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 1rem 5rem; }
+#si { justify-content: center; padding-top: 2.5rem; }
+
+/* intro */
+.brand { text-align: center; margin-bottom: 2rem; }
+.bm { width: 56px; height: 56px; margin: 0 auto 1rem; }
+.bm svg { width: 56px; height: 56px; }
+.brand h1 { font-family: "Noto Serif SC", serif; font-size: 1.85rem; font-weight: 700; color: var(--tx); letter-spacing: .03em; margin-bottom: .35rem; }
+.ben { font-family: "JetBrains Mono", monospace; font-size: .68rem; color: var(--dim); letter-spacing: .14em; text-transform: uppercase; }
+
+.im { display: flex; justify-content: center; gap: .6rem; margin-bottom: 1.8rem; flex-wrap: wrap; }
+.mp { background: var(--card); border: 1px solid var(--b1); border-radius: 999px; padding: .28rem .85rem; font-size: .78rem; color: var(--sub); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+
+.ap { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; width: 100%; max-width: 480px; margin: 0 auto 1.8rem; }
+.ac { background: var(--card); border: 1px solid var(--b1); border-radius: 10px; padding: .8rem 1rem; border-left-width: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.ac.ec { border-left-color: var(--ec); } .ac.so { border-left-color: var(--so); }
+.ac.en { border-left-color: var(--en); } .ac.et { border-left-color: var(--et); }
+.ac.ix { border-left-color: var(--ix); grid-column: span 2; }
+.at { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .25rem; }
+.ac.ec .at { color: var(--ec); } .ac.so .at { color: var(--so); }
+.ac.en .at { color: var(--en); } .ac.et .at { color: var(--et); } .ac.ix .at { color: var(--ix); }
+.ad { font-size: .77rem; color: var(--sub); line-height: 1.5; }
+
+.nb { width: 100%; max-width: 480px; margin: 0 auto 1.8rem; background: var(--card); border: 1px solid var(--b1); border-radius: 10px; padding: .9rem 1.1rem; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.nb p { font-size: .77rem; color: var(--sub); line-height: 1.65; margin-bottom: .35rem; }
+.nb p:last-child { margin-bottom: 0; }
+.nb strong { color: var(--tx); }
+
+.cb { display: block; width: 100%; max-width: 480px; margin: 0 auto; padding: .95rem; background: var(--tx); color: var(--bg); border: none; border-radius: 10px; font-family: "Noto Sans SC", sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; letter-spacing: .04em; transition: opacity .15s; box-shadow: 0 2px 8px rgba(0,0,0,.14); }
+.cb:hover { opacity: .86; } .cb:active { opacity: .72; }
+
+/* quiz */
+#sq { padding-top: 3.8rem; }
+.qh { width: 100%; max-width: 540px; display: flex; justify-content: space-between; align-items: center; padding: .8rem 0 .9rem; }
+.qt { padding: .22rem .6rem; border-radius: 4px; font-size: .67rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.tec { background: rgba(26,111,181,.12); color: var(--ec); }
+.tso { background: rgba(181,40,72,.12); color: var(--so); }
+.ten { background: rgba(26,140,88,.12); color: var(--en); }
+.tet { background: rgba(181,120,0,.12); color: var(--et); }
+.tix { background: rgba(92,61,181,.12); color: var(--ix); }
+.qn { font-family: "JetBrains Mono", monospace; font-size: .74rem; color: var(--dim); }
+
+.qcard { background: var(--card); border: 1px solid var(--b1); border-radius: 14px; padding: 1.8rem 1.4rem 1.5rem; width: 100%; max-width: 540px; margin-bottom: .9rem; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+.qtx { font-family: "Noto Serif SC", serif; font-size: 1.07rem; font-weight: 600; line-height: 1.85; color: var(--tx); min-height: 3.5rem; }
+
+.cl { display: flex; flex-direction: column; gap: .42rem; width: 100%; max-width: 540px; }
+.ch { background: var(--card); border: 1px solid var(--b1); border-radius: 9px; padding: .8rem 1.2rem; text-align: center; font-family: "Noto Sans SC", sans-serif; font-size: .9rem; color: var(--sub); cursor: pointer; transition: background .1s, border-color .12s, color .1s, transform .08s, box-shadow .1s; -webkit-tap-highlight-color: transparent; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+.ch:active { transform: scale(.97); }
+.ch:hover { border-color: var(--b2); color: var(--tx); box-shadow: 0 2px 8px rgba(0,0,0,.09); }
+.c2:hover  { border-color: var(--ok); color: var(--ok); background: #f0faf5; }
+.c1:hover  { border-color: #52b888; color: #1a7048; background: #f5fdf9; }
+.c0:hover  { border-color: var(--dim); color: var(--sub); background: var(--surf); }
+.cm1:hover { border-color: #c47070; color: #943838; background: #fdf5f5; }
+.cm2:hover { border-color: var(--ng); color: var(--ng); background: #fef0f3; }
+
+/* result */
+#sr { padding-top: 2.8rem; }
+.rh { text-align: center; width: 100%; max-width: 540px; margin-bottom: 1.8rem; }
+.rl { font-family: "JetBrains Mono", monospace; font-size: .7rem; color: var(--dim); letter-spacing: .12em; text-transform: uppercase; margin-bottom: .55rem; }
+.rn { font-family: "Noto Serif SC", serif; font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: .45rem; color: var(--tx); }
+.rt { font-size: .88rem; color: var(--sub); line-height: 1.6; }
+
+/* compass canvas */
+.cw { width: 100%; max-width: 300px; margin: 0 auto 1.5rem; }
+#cv { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--b1); box-shadow: 0 2px 12px rgba(0,0,0,.09); }
+
+/* score bars */
+.bars { width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.4rem; }
+.bar { background: var(--card); border: 1px solid var(--b1); border-radius: 10px; padding: .8rem 1.1rem; display: flex; align-items: center; gap: .9rem; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.ban { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; width: 2.4rem; flex-shrink: 0; }
+.bam { flex: 1; }
+.batr { height: 5px; background: var(--surf); border-radius: 3px; position: relative; }
+.baf { position: absolute; top: 0; height: 100%; border-radius: 3px; width: 0%; transition: width .65s cubic-bezier(.4,0,.2,1); }
+.bafr { left: 50%; } .bafl { right: 50%; }
+.bacl { position: absolute; left: 50%; top: -3px; width: 1px; height: 11px; background: var(--b2); }
+.bap { display: flex; justify-content: space-between; font-size: .61rem; color: var(--dim); margin-top: .32rem; }
+.bapm { color: var(--sub); font-weight: 500; }
+.bav { font-family: "JetBrains Mono", monospace; font-size: .73rem; color: var(--sub); flex-shrink: 0; width: 2.8rem; text-align: right; }
+
+/* ideology box */
+.ib { width: 100%; max-width: 540px; background: var(--card); border-radius: 12px; padding: 1.3rem 1.2rem; margin-bottom: 1.1rem; border: 1px solid var(--b1); position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.ib::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ec), var(--so), var(--en), var(--et), var(--ix)); }
+.il { font-family: "JetBrains Mono", monospace; font-size: .67rem; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .45rem; }
+.inam { font-family: "Noto Serif SC", serif; font-size: 1.2rem; font-weight: 700; margin-bottom: .55rem; color: var(--tx); }
+.idesc { font-size: .86rem; color: var(--sub); line-height: 1.78; }
+
+/* report accordion */
+.rs { width: 100%; max-width: 540px; margin-bottom: 1.1rem; }
+.rc { background: var(--card); border: 1px solid var(--b1); border-radius: 11px; overflow: hidden; margin-bottom: .55rem; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.rch { display: flex; align-items: center; gap: .65rem; padding: .85rem 1.1rem; border-bottom: 1px solid var(--b1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rch:hover { background: var(--surf); }
+.rcd { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.rct { font-size: .81rem; font-weight: 700; letter-spacing: .03em; flex: 1; color: var(--tx); }
+.rca { font-size: .65rem; color: var(--dim); transition: transform .2s; }
+.rca.op { transform: rotate(180deg); }
+.rcb { padding: 1.05rem; display: none; background: var(--card); }
+.rcb.op { display: block; }
+.rcb p { font-size: .86rem; color: var(--sub); line-height: 1.78; margin-bottom: .55rem; }
+.rcb p:last-child { margin-bottom: 0; }
+.rcb strong { color: var(--tx); }
+
+/* share */
+.sa { width: 100%; max-width: 540px; display: flex; flex-direction: column; gap: .65rem; margin-bottom: 1.4rem; }
+.sb { background: var(--surf); border: 1px solid var(--b1); border-radius: 9px; padding: .95rem; font-family: "JetBrains Mono", monospace; font-size: .72rem; color: var(--sub); line-height: 1.65; white-space: pre-wrap; word-break: break-all; }
+.sg { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+.sbt { padding: .72rem; border-radius: 8px; border: 1px solid var(--b1); background: var(--card); color: var(--sub); font-family: "Noto Sans SC", sans-serif; font-size: .82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .4rem; transition: border-color .14s, color .14s, background .14s; -webkit-tap-highlight-color: transparent; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+.sbt:hover { border-color: var(--tx); color: var(--tx); background: var(--surf); }
+.sbt.cp { border-color: var(--ok); color: var(--ok); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="pb"><div id="pf"></div></div>
+
+<!-- INTRO -->
+<div id="si" class="sc">
+  <div class="brand">
+    <div class="bm">
+      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="26" stroke="#ccc9c0" stroke-width="1.5"/>
+        <circle cx="28" cy="28" r="17" stroke="#e2dfd8" stroke-width="1"/>
+        <line x1="28" y1="2" x2="28" y2="54" stroke="#ccc9c0" stroke-width="1"/>
+        <line x1="2" y1="28" x2="54" y2="28" stroke="#ccc9c0" stroke-width="1"/>
+        <circle cx="28" cy="28" r="2.5" fill="#1a6fb5"/>
+        <line x1="28" y1="28" x2="37" y2="15" stroke="#1c1a17" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="37" cy="15" r="2.2" fill="#5c3db5"/>
+      </svg>
+    </div>
+    <h1>政治罗盘</h1>
+    <div class="ben">Political Compass &middot; 2026</div>
+  </div>
+  <div class="im">
+    <div class="mp">60 道题</div>
+    <div class="mp">5 个维度</div>
+    <div class="mp">约 10 分钟</div>
+  </div>
+  <div class="ap">
+    <div class="ac ec"><div class="at">经济</div><div class="ad">市场 &#8596; 计划</div></div>
+    <div class="ac so"><div class="at">社会</div><div class="ad">威权 &#8596; 自由</div></div>
+    <div class="ac en"><div class="at">环境</div><div class="ad">增长 &#8596; 生态</div></div>
+    <div class="ac et"><div class="at">文化</div><div class="ad">民族 &#8596; 世界</div></div>
+    <div class="ac ix"><div class="at">国际关系</div><div class="ad">主权/现实主义 &#8596; 合作/国际主义</div></div>
+  </div>
+  <div class="nb">
+    <p><strong>作答说明</strong></p>
+    <p>每维度 12 道陈述，同意即支持该维度正方向立场，不同意即支持反方向立场。请根据第一直觉作答。本测试结果仅描述政治倾向，不作任何价值判断。</p>
+  </div>
+  <button class="cb" onclick="startQ()">开始测试</button>
+</div>
+
+<!-- QUIZ -->
+<div id="sq" class="sc hidden">
+  <div class="qh">
+    <span id="qtag"></span>
+    <span id="qnum" class="qn"></span>
+  </div>
+  <div class="qcard"><div class="qtx" id="qtx"></div></div>
+  <div class="cl" id="cl"></div>
+</div>
+
+<!-- RESULT -->
+<div id="sr" class="sc hidden">
+  <div class="rh">
+    <div class="rl">你的政治坐标</div>
+    <div class="rn" id="rn"></div>
+    <div class="rt" id="rtg"></div>
+  </div>
+  <div class="cw"><canvas id="cv" width="300" height="300"></canvas></div>
+  <div class="bars" id="bars"></div>
+  <div class="ib">
+    <div class="il">意识形态分析</div>
+    <div class="inam" id="inam"></div>
+    <div class="idesc" id="idesc"></div>
+  </div>
+  <div class="rs" id="rs"></div>
+  <div class="sa">
+    <div class="sb" id="sb"></div>
+    <div class="sg">
+      <button class="sbt" id="cpb" onclick="doCopy()">复制结果</button>
+      <button class="sbt" onclick="doReset()">重新测试</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+ * 计分规则：
+ * 每维度12题，全部单向，同意=正方向，不同意=负方向
+ * 答案值: 完全同意=+2, 基本同意=+1, 中立=0, 基本不同意=-1, 完全不同意=-2
+ * 原始分范围: -24 到 +24，归一化 /24 得 -1.0 到 +1.0
+ * 正方向: ec+=右翼, so+=威权, en+=增长, et+=民族, ix+=主权
+ */
+
+var Qs = [
+  /* 经济 12题 — 同意=右翼/市场 */
+  {t:"私营企业通常比国有企业更有效率地提供商品和服务。", x:"ec"},
+  {t:"政府对企业的监管总体上弊大于利。", x:"ec"},
+  {t:"自由贸易对参与各方的经济发展总体上利大于弊。", x:"ec"},
+  {t:"劳动力市场的薪资水平应主要由供需关系决定。", x:"ec"},
+  {t:"较高的税率会抑制经济增长。", x:"ec"},
+  {t:"过于慷慨的社会福利制度会削弱人们的工作积极性。", x:"ec"},
+  {t:"国有化关键产业会降低整体经济效率。", x:"ec"},
+  {t:"政府对特定产业的补贴往往导致资源错配。", x:"ec"},
+  {t:"累进税制（收入越高税率越高）对高收入者不公平。", x:"ec"},
+  {t:"私有产权是繁荣经济的根本保障。", x:"ec"},
+  {t:"大型企业之间形成垄断是市场自然竞争的结果，无需强制干预。", x:"ec"},
+  {t:"工会的存在总体上损害了企业竞争力和经济效率。", x:"ec"},
+
+  /* 社会 12题 — 同意=威权/秩序 */
+  {t:"政府限制某些被认为有害社会的言论是合理的。", x:"so"},
+  {t:"传统家庭结构是稳定社会秩序的重要基础。", x:"so"},
+  {t:"政府有责任管控网络上危害社会稳定的内容。", x:"so"},
+  {t:"为保障公共安全，政府对公民实施一定程度的监控是合理的。", x:"so"},
+  {t:"对极端严重罪行判处死刑具有正当性。", x:"so"},
+  {t:"在某些情况下，集体利益应当优先于个人权利。", x:"so"},
+  {t:"危害社会的极端政治主张应受到法律限制。", x:"so"},
+  {t:"宗教与道德价值观在公共政策制定中应发挥重要作用。", x:"so"},
+  {t:"国家有责任在教育中传授主流道德规范。", x:"so"},
+  {t:"在紧急安全威胁下，政府采取超常规措施是合理的。", x:"so"},
+  {t:"媒体报道应受到一定程度的国家监管，以防止虚假信息传播。", x:"so"},
+  {t:"女性的生育决定应受到国家法律的约束和规范。", x:"so"},
+
+  /* 环境 12题 — 同意=增长优先/技术乐观 */
+  {t:"经济发展在大多数情况下应优先于环境保护。", x:"en"},
+  {t:"技术进步最终将解决环境问题，无需大幅限制经济活动。", x:"en"},
+  {t:"当前的环境法规过于严苛，不必要地阻碍了经济发展。", x:"en"},
+  {t:"发展中国家有权按照自身节奏推进工业化，无需接受发达国家设定的环保标准。", x:"en"},
+  {t:"核能是可靠的低碳能源选项，其安全风险被过度渲染。", x:"en"},
+  {t:"气候政策的推进速度必须充分考虑对就业和产业的冲击。", x:"en"},
+  {t:"个人消费选择对全球气候变化的影响微乎其微，不应成为道德问题。", x:"en"},
+  {t:"生态保护不应以牺牲当代人的生活水平为代价。", x:"en"},
+  {t:"碳税等气候政策实际上对低收入群体造成了更重的经济负担。", x:"en"},
+  {t:"野生动物和自然生态系统的保护应服从于人类经济发展的需要。", x:"en"},
+  {t:"气候变化的严重程度被科学界和媒体夸大了。", x:"en"},
+  {t:"企业的首要责任是对股东负责，而非对环境负责。", x:"en"},
+
+  /* 文化 12题 — 同意=民族主义/文化保守 */
+  {t:"保护本国文化认同是政府的正当职责。", x:"et"},
+  {t:"移民数量应受到严格控制。", x:"et"},
+  {t:"移民应融入所在国主流文化，而非维持独立的文化社群。", x:"et"},
+  {t:"公民对本国的强烈认同感有助于社会凝聚。", x:"et"},
+  {t:"大规模移民会对所在国的社会服务和文化认同造成实质压力。", x:"et"},
+  {t:"本国公民在公共资源分配上应优先于外来移民。", x:"et"},
+  {t:"过度强调多元文化会削弱社会凝聚力。", x:"et"},
+  {t:"爱国主义教育对于培养公民责任感是必要的。", x:"et"},
+  {t:"官方语言政策有助于维护社会整合。", x:"et"},
+  {t:"当本国文化传统与外来文化价值观发生冲突时，应优先维护本国传统。", x:"et"},
+  {t:"历史课程应强调本国文明的成就，而非过度聚焦于历史错误。", x:"et"},
+  {t:"宗教传统是国家文化认同的重要组成部分，应在公共生活中得到尊重。", x:"et"},
+
+  /* 国际 12题 — 同意=主权/现实主义 */
+  {t:"本国利益应始终优先于国际义务。", x:"ix"},
+  {t:"国际组织的权力过大，对国家主权构成实质威胁。", x:"ix"},
+  {t:"强大的军事力量比外交谈判更能有效维护国家安全。", x:"ix"},
+  {t:"其他国家的内政不应受到外部干涉，无论其政府行为如何。", x:"ix"},
+  {t:"国家有权退出损害本国利益的国际协议。", x:"ix"},
+  {t:"国际制裁往往无效，且主要伤害的是普通民众而非其领导层。", x:"ix"},
+  {t:"双边协议通常比多边条约更能有效维护本国利益。", x:"ix"},
+  {t:"减少对外援助，将资源优先用于本国需求，是合理的政策选择。", x:"ix"},
+  {t:"在国际谈判中展示强硬立场，通常比妥协让步更能维护国家利益。", x:"ix"},
+  {t:"一国无义务接收来自其他国家的难民和庇护申请者。", x:"ix"},
+  {t:"核武器的存在实际上通过威慑维护了大国之间的和平。", x:"ix"},
+  {t:"在经济全球化中，本国产业保护应优先于自由贸易原则。", x:"ix"}
+];
+
+/* 交叉穿插：每轮依次各取1题，共12轮x5维度=60题 */
+var ORDER = [
+   0,12,24,36,48,
+   1,13,25,37,49,
+   2,14,26,38,50,
+   3,15,27,39,51,
+   4,16,28,40,52,
+   5,17,29,41,53,
+   6,18,30,42,54,
+   7,19,31,43,55,
+   8,20,32,44,56,
+   9,21,33,45,57,
+  10,22,34,46,58,
+  11,23,35,47,59
+];
+
+var OPTS = [
+  {lb:"完全同意",   v: 2, cs:"c2"},
+  {lb:"基本同意",   v: 1, cs:"c1"},
+  {lb:"中立",       v: 0, cs:"c0"},
+  {lb:"基本不同意", v:-1, cs:"cm1"},
+  {lb:"完全不同意", v:-2, cs:"cm2"}
+];
+
+/* 维度元数据 */
+var AM = {
+  ec: {nm:"经济", cl:"var(--ec)", L:"左翼", R:"右翼", mx:24},
+  so: {nm:"社会", cl:"var(--so)", L:"自由", R:"威权", mx:24},
+  en: {nm:"环境", cl:"var(--en)", L:"生态", R:"增长", mx:24},
+  et: {nm:"文化", cl:"var(--et)", L:"世界", R:"民族", mx:24},
+  ix: {nm:"国际", cl:"var(--ix)", L:"合作", R:"主权", mx:24}
+};
+var AK = ["ec","so","en","et","ix"];
+var TC = {ec:"tec", so:"tso", en:"ten", et:"tet", ix:"tix"};
+
+var cur = 0;
+var sc  = {ec:0, so:0, en:0, et:0, ix:0};
+
+/* ── 答题 ── */
+function startQ() {
+  cur = 0;
+  sc  = {ec:0, so:0, en:0, et:0, ix:0};
+  goTo("sq");
+  renderQ();
+}
+
+function renderQ() {
+  var q   = Qs[ORDER[cur]];
+  var n   = cur + 1;
+  var tot = ORDER.length;
+  document.getElementById("pf").style.width = ((n-1)/tot*100) + "%";
+  document.getElementById("qnum").textContent = n + " / " + tot;
+  var tag = document.getElementById("qtag");
+  tag.className = "qt " + TC[q.x];
+  tag.textContent = AM[q.x].nm;
+  document.getElementById("qtx").textContent = q.t;
+  var cont = document.getElementById("cl");
+  cont.innerHTML = "";
+  for (var i = 0; i < OPTS.length; i++) {
+    var o   = OPTS[i];
+    var btn = document.createElement("button");
+    btn.className = "ch " + o.cs;
+    btn.textContent = o.lb;
+    btn.onclick = makeFn(o.v);
+    cont.appendChild(btn);
+  }
+}
+
+function makeFn(v) { return function() { pick(v); }; }
+
+function pick(v) {
+  sc[Qs[ORDER[cur]].x] += v;   /* d 全为 1，直接加 v */
+  cur++;
+  if (cur >= ORDER.length) {
+    document.getElementById("pf").style.width = "100%";
+    setTimeout(function() { goTo("sr"); buildResult(); }, 150);
+  } else {
+    renderQ();
+  }
+}
+
+/* ── 结果 ── */
+function buildResult() {
+  /* 归一化 */
+  var nr = {};
+  for (var i = 0; i < AK.length; i++) {
+    var k = AK[i];
+    nr[k] = Math.max(-1, Math.min(1, sc[k] / AM[k].mx));
+  }
+
+  var id = classify(nr);
+  document.getElementById("rn").textContent   = id.nm;
+  document.getElementById("rtg").textContent  = id.tg;
+  document.getElementById("inam").textContent = id.nm;
+  document.getElementById("idesc").textContent = id.dc;
+
+  buildBars(nr);
+  setTimeout(function(){ drawCompass(nr); }, 80);
+  buildReport(nr);
+  buildShare(id, nr);
+}
+
+/* ── 分类（严格按优先级，互斥判断） ── */
+function classify(n) {
+  var e = n.ec, s = n.so, v = n.en, c = n.et, ii = n.ix;
+
+  /* 辅助布尔 */
+  var eL  = e < -0.2,  eR  = e > 0.2;
+  var auS = s > 0.2,   liS = s < -0.2;
+  var ecoE = v < -0.3;
+  var natC = c > 0.3;
+  var sovI = ii > 0.3, cooI = ii < -0.3;
+
+  /* 1. 生态社会主义：左翼 + 自由 + 强生态 */
+  if (eL && liS && ecoE)
+    return mk("生态社会主义",
+      "平等 · 生态 · 个人自由",
+      "你同时支持经济平等、个人自由和生态保护。你认为现有经济体系既造成社会不平等，也是生态危机的根源。这一立场与绿色左翼、去增长运动和无政府社会主义有交集。");
+
+  /* 2. 威权集体民族：左翼 + 威权 + 强民族 */
+  if (eL && auS && natC)
+    return mk("威权民族左翼",
+      "国家主导 · 民族认同 · 集体优先",
+      "你支持国家在经济中的主导作用和强烈的民族文化认同，同时认为集体秩序高于个人自由。这一组合在历史上与多种民族社会主义形态有关联。");
+
+  /* 3. 民族保守主义：右翼 + 威权 + 强民族 */
+  if (eR && auS && natC)
+    return mk("民族保守主义",
+      "市场 · 秩序 · 民族认同",
+      "你支持自由市场经济，同时强调社会秩序、传统权威和民族文化认同。这是当代右翼民粹主义和民族保守主义的核心立场组合。");
+
+  /* 4. 全球自由主义：右翼 + 自由 + 强国际合作 */
+  if (eR && liS && cooI)
+    return mk("全球自由主义",
+      "市场 · 个人权利 · 开放国际秩序",
+      "你支持自由市场、个人权利和开放的国际合作体系，反对国家对经济和个人生活的干预，同时支持多边主义和自由贸易。这是古典自由主义在当代最接近的体现。");
+
+  /* 5. 民族主义：强民族 + 强主权（不限经济/社会） */
+  if (natC && sovI)
+    return mk("民族主义",
+      "民族认同 · 国家主权 · 本国优先",
+      "你将民族文化认同和国家主权置于核心位置，支持严格的移民管控和优先本国利益的外交政策。这是跨越经济左右的民族主义立场。");
+
+  /* 6. 绿色政治：强生态 + 经济居中 */
+  if (ecoE && !eL && !eR)
+    return mk("绿色政治",
+      "生态保护 · 代际公正 · 务实经济",
+      "生态保护和代际公正是你政治观的核心，但你在经济左右轴上没有强烈倾向。这与当代绿党的主流立场接近，强调环境政策优先，在经济议题上保持灵活。");
+
+  /* 7. 威权左翼：左翼 + 威权 */
+  if (eL && auS)
+    return mk("威权左翼",
+      "国家干预 · 集体秩序 · 经济平等",
+      "你支持国家在经济中的深度干预以实现平等，同时重视社会秩序和集体纪律。这一立场与传统社会主义和一些左翼民族主义运动有历史交集。");
+
+  /* 8. 保守主义：右翼 + 威权 */
+  if (eR && auS)
+    return mk("保守主义",
+      "市场 · 秩序 · 传统",
+      "你支持市场机制和社会秩序，相信传统价值和既有制度在维系社会凝聚力中的作用。这是当代右翼政治中分布最广的立场，与保守自由主义、基督教民主主义等有重叠。");
+
+  /* 9. 自由左翼：左翼 + 自由 */
+  if (eL && liS)
+    return mk("自由左翼",
+      "个人自由 · 社会平等 · 民主",
+      "你同时重视个人自由和社会经济平等，倾向于通过民主机制限制国家权力，同时用再分配政策纠正市场失灵。这在欧洲通常被归类为社会自由主义或左翼自由主义。");
+
+  /* 10. 自由意志主义：右翼 + 自由 */
+  if (eR && liS)
+    return mk("自由意志主义",
+      "最小国家 · 市场 · 个人自主",
+      "你优先重视个人自由和市场机制，对国家权力的扩张持系统性怀疑态度。你认为政府职能应限于保护基本权利，市场应在最少干预下运作。");
+
+  /* 11. 社会民主主义：偏左 + 社会居中 */
+  if (eL && !auS && !liS)
+    return mk("社会民主主义",
+      "再分配 · 公共服务 · 温和秩序",
+      "你支持较强的经济再分配和完善的公共服务，但在社会治理上没有强烈的威权或自由倾向。这与北欧国家的政策模式最为接近，也是当代中左翼政党的主流立场。");
+
+  /* 12. 基督教民主 / 社会保守中间：社会偏威权 + 经济居中 */
+  if (auS && !eL && !eR)
+    return mk("社会保守主义",
+      "秩序 · 传统 · 经济务实",
+      "你在社会和文化议题上倾向于秩序与传统，但在经济问题上没有强烈的左右倾向。这与基督教民主主义、宗教保守主义和部分民粹主义的经济立场有交集。");
+
+  /* 13. 新自由主义：偏右 + 社会居中 */
+  if (eR && !auS && !liS)
+    return mk("新自由主义",
+      "市场导向 · 经济效率 · 社会务实",
+      "你支持市场机制和较少的经济干预，但在社会和文化议题上没有强烈倾向。这与技术官僚自由主义、中间右翼经济政策和部分新自由主义传统有交集。");
+
+  /* 14. 温和中间派：经济和社会均居中 */
+  if (Math.abs(e) < 0.2 && Math.abs(s) < 0.2)
+    return mk("温和中间派",
+      "务实 · 平衡 · 非教条",
+      "你在经济和社会两个核心维度上均未表现出强烈偏向。这可能反映真正的中间立场，也可能意味着你在不同议题上持有跨越左右的多元观点。");
+
+  /* 15. 兜底：复合型 */
+  return mk("复合型立场",
+    "跨越传统政治分界",
+    "你的立场不能被简单归入标准的政治象限。这在现实中很常见——大多数人在不同议题上的观点并不完全一致。你的政治哲学可能正处于形成中，或有意识地拒绝单一意识形态框架。");
+}
+
+function mk(nm, tg, dc) { return {nm:nm, tg:tg, dc:dc}; }
+
+/* ── 分数条 ── */
+function buildBars(nr) {
+  var cont = document.getElementById("bars");
+  cont.innerHTML = "";
+  for (var i = 0; i < AK.length; i++) {
+    var k   = AK[i];
+    var m   = AM[k];
+    var v   = nr[k];
+    var pct = Math.abs(v) * 50;
+    var pos = v >= 0;
+    var av  = Math.abs(v);
+    var pole;
+    if (av < 0.1)       { pole = "居中"; }
+    else if (av < 0.35) { pole = (pos ? "偏" : "偏") + (pos ? m.R : m.L); }
+    else if (av < 0.65) { pole = pos ? m.R : m.L; }
+    else                { pole = "强烈" + (pos ? m.R : m.L); }
+    var vs = (v >= 0 ? "+" : "") + (v * 100).toFixed(0) + "%";
+
+    var row = document.createElement("div"); row.className = "bar";
+    var nd  = document.createElement("div"); nd.className = "ban"; nd.style.color = m.cl; nd.textContent = m.nm;
+    var md  = document.createElement("div"); md.className = "bam";
+    var tr  = document.createElement("div"); tr.className = "batr";
+    var cl2 = document.createElement("div"); cl2.className = "bacl"; tr.appendChild(cl2);
+    var fl  = document.createElement("div"); fl.className = "baf " + (pos ? "bafr" : "bafl"); fl.style.background = m.cl; tr.appendChild(fl);
+    md.appendChild(tr);
+    var pl  = document.createElement("div"); pl.className = "bap";
+    var pLA = document.createElement("span"); pLA.textContent = m.L;
+    var pM  = document.createElement("span"); pM.className = "bapm"; pM.textContent = pole;
+    var pR  = document.createElement("span"); pR.textContent = m.R;
+    pl.appendChild(pLA); pl.appendChild(pM); pl.appendChild(pR); md.appendChild(pl);
+    var vd  = document.createElement("div"); vd.className = "bav"; vd.textContent = vs;
+    row.appendChild(nd); row.appendChild(md); row.appendChild(vd);
+    cont.appendChild(row);
+    (function(f, p){ setTimeout(function(){ f.style.width = p + "%"; }, 80); })(fl, pct);
+  }
+}
+
+/* ── 罗盘图 ── */
+function drawCompass(nr) {
+  var cv  = document.getElementById("cv");
+  var ctx = cv.getContext("2d");
+  var W   = cv.width, H = cv.height;
+  var cx  = W/2, cy = H/2, R = W * 0.42;
+  ctx.clearRect(0, 0, W, H);
+
+  /* 白底 */
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+
+  /* 象限底色 */
+  var q = [
+    {x:cx-R, y:cy-R, c:"rgba(181,40,72,0.07)"},   /* 威权左 */
+    {x:cx,   y:cy-R, c:"rgba(26,111,181,0.07)"},   /* 威权右 */
+    {x:cx-R, y:cy,   c:"rgba(26,140,88,0.07)"},    /* 自由左 */
+    {x:cx,   y:cy,   c:"rgba(92,61,181,0.07)"}     /* 自由右 */
+  ];
+  for (var i = 0; i < q.length; i++) {
+    ctx.fillStyle = q[i].c;
+    ctx.fillRect(q[i].x, q[i].y, R, R);
+  }
+
+  /* 格线 */
+  ctx.strokeStyle = "rgba(200,197,190,0.6)"; ctx.lineWidth = 1;
+  for (var g = 1; g < 4; g++) {
+    var gx = cx - R + g*(R/2);
+    ctx.beginPath(); ctx.moveTo(gx, cy-R); ctx.lineTo(gx, cy+R); ctx.stroke();
+    var gy = cy - R + g*(R/2);
+    ctx.beginPath(); ctx.moveTo(cx-R, gy); ctx.lineTo(cx+R, gy); ctx.stroke();
+  }
+
+  /* 主轴 */
+  ctx.strokeStyle = "#b0ada6"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx-R, cy); ctx.lineTo(cx+R, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy-R); ctx.lineTo(cx, cy+R); ctx.stroke();
+
+  /* 外框 */
+  ctx.strokeStyle = "#ccc9c0"; ctx.lineWidth = 1;
+  ctx.strokeRect(cx-R, cy-R, 2*R, 2*R);
+
+  /* 轴标签 */
+  ctx.fillStyle = "#9c9a94";
+  ctx.font = "500 9px 'Noto Sans SC', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("威权", cx, cy-R-7);
+  ctx.fillText("自由", cx, cy+R+15);
+  ctx.textAlign = "right";
+  ctx.fillText("左翼", cx-R-5, cy+4);
+  ctx.textAlign = "left";
+  ctx.fillText("右翼", cx+R+5, cy+4);
+  ctx.textAlign = "center";
+
+  /* 坐标点 */
+  var dx = cx + nr.ec * R;
+  var dy = cy - nr.so * R;
+
+  /* 虚线十字 */
+  ctx.strokeStyle = "rgba(26,111,181,0.22)";
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3,4]);
+  ctx.beginPath(); ctx.moveTo(dx, cy); ctx.lineTo(dx, dy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, dy); ctx.lineTo(dx, dy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* 光晕 */
+  var g2 = ctx.createRadialGradient(dx, dy, 0, dx, dy, 22);
+  g2.addColorStop(0, "rgba(26,111,181,0.22)");
+  g2.addColorStop(1, "rgba(26,111,181,0)");
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(dx, dy, 22, 0, Math.PI*2); ctx.fill();
+
+  /* 点 */
+  ctx.fillStyle = "#1a6fb5";
+  ctx.beginPath(); ctx.arc(dx, dy, 6.5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(dx, dy, 2.2, 0, Math.PI*2); ctx.fill();
+}
+
+/* ── 各维度分析折叠卡 ── */
+var RPT = [
+  {k:"ec", ti:"经济立场", rows:[
+    {lo:-1.01, hi:-0.6,  h:"<p>你的经济观念偏向<strong>强烈的左翼干预主义</strong>。你认为市场机制在现实中系统性地产生不可接受的不平等，主张国家对关键经济领域进行深度干预乃至公共所有。</p>"},
+    {lo:-0.6,  hi:-0.2,  h:"<p>你的经济立场偏向<strong>左翼</strong>，接近社会民主主义传统。你支持累进税制、较强的劳工保护和完善的公共服务，但不主张取消市场机制本身。</p>"},
+    {lo:-0.2,  hi:0.2,   h:"<p>你在经济议题上立场<strong>居中</strong>，在市场效率和政府干预之间没有强烈偏好，倾向于具体问题具体分析。</p>"},
+    {lo:0.2,   hi:0.6,   h:"<p>你的经济立场偏向<strong>右翼</strong>，支持市场机制、私有产权和较少的政府干预，接受有限的社会保障。</p>"},
+    {lo:0.6,   hi:1.01,  h:"<p>你的经济观念偏向<strong>强烈的市场自由主义</strong>。你相信自由竞争和私有产权的系统性优越性，对几乎所有形式的政府经济干预持反对态度。</p>"}
+  ]},
+  {k:"so", ti:"社会治理", rows:[
+    {lo:-1.01, hi:-0.6,  h:"<p>你在社会治理上持<strong>强烈的自由意志主义</strong>立场，系统性地反对国家对个人生活的干预，将个人自主权视为核心价值。</p>"},
+    {lo:-0.6,  hi:-0.2,  h:"<p>你在社会议题上偏向<strong>自由主义</strong>，重视公民自由、言论自由和个人权利，对政府监控和道德立法持审慎态度。</p>"},
+    {lo:-0.2,  hi:0.2,   h:"<p>你在社会治理上立场<strong>居中</strong>，在个人自由与社会秩序之间保持均衡，倾向于具体情境具体判断。</p>"},
+    {lo:0.2,   hi:0.6,   h:"<p>你在社会治理上偏向<strong>威权</strong>，重视社会秩序和传统价值，认为某些集体规范需要国家来维护和保障。</p>"},
+    {lo:0.6,   hi:1.01,  h:"<p>你在社会治理上持<strong>强烈的威权主义</strong>立场，认为强大的国家权力和严格的社会秩序对于共同体生活不可或缺，集体利益高于个人自由。</p>"}
+  ]},
+  {k:"en", ti:"环境立场", rows:[
+    {lo:-1.01, hi:-0.6,  h:"<p>你是一位<strong>坚定的生态优先者</strong>，将生态系统保护和代际公正置于当前经济增长之上，支持激进的减排政策和去增长经济学。</p>"},
+    {lo:-0.6,  hi:-0.2,  h:"<p>你偏向<strong>环境保护优先</strong>，支持通过政策干预纠正市场在处理环境外部性时的失灵，愿意为环保目标承担一定经济代价。</p>"},
+    {lo:-0.2,  hi:0.2,   h:"<p>你在环境与发展议题上立场<strong>居中</strong>，认为在不同情境下需要具体权衡经济和环境目标。</p>"},
+    {lo:0.2,   hi:0.6,   h:"<p>你偏向<strong>发展优先</strong>，认为技术创新和渐进政策调整能在保持增长的同时改善环境，对快速去碳化的经济冲击持审慎态度。</p>"},
+    {lo:0.6,   hi:1.01,  h:"<p>你持<strong>强烈的发展/增长优先</strong>立场，对当前气候政策的成本和必要性持批评态度，更信任技术进步而非严格的监管限制。</p>"}
+  ]},
+  {k:"et", ti:"文化与认同", rows:[
+    {lo:-1.01, hi:-0.6,  h:"<p>你是一位<strong>鲜明的世界主义者</strong>，将普世人权和全球人道主义责任置于民族认同之上，积极拥护文化多元和开放的移民政策。</p>"},
+    {lo:-0.6,  hi:-0.2,  h:"<p>你偏向<strong>文化多元主义</strong>，认为不同文化的共存丰富了社会生活，支持少数群体权利保护和历史批判性反思。</p>"},
+    {lo:-0.2,  hi:0.2,   h:"<p>你在文化和移民议题上立场<strong>居中</strong>，认同文化多样性的价值，同时也接受一定程度的社会整合需求。</p>"},
+    {lo:0.2,   hi:0.6,   h:"<p>你偏向<strong>文化保守主义</strong>，重视本国文化传统和国民认同，支持有节制的移民管控和文化整合要求。</p>"},
+    {lo:0.6,   hi:1.01,  h:"<p>你持<strong>强烈的文化民族主义</strong>立场，将本民族文化认同的维护视为核心价值，支持严格的移民管控和本国文化优先政策。</p>"}
+  ]},
+  {k:"ix", ti:"国际关系", rows:[
+    {lo:-1.01, hi:-0.6,  h:"<p>你是一位<strong>强烈的国际主义者</strong>，相信多边合作和全球治理机构是解决当代挑战的必要途径，支持赋予国际机构更大权威。</p>"},
+    {lo:-0.6,  hi:-0.2,  h:"<p>你偏向<strong>国际合作主义</strong>，支持多边外交和国际制度，认为全球性问题需要协调一致的国际行动来解决。</p>"},
+    {lo:-0.2,  hi:0.2,   h:"<p>你在国际关系上立场<strong>居中</strong>，视具体议题在主权考量和国际合作之间权衡，不持有强烈的教条性偏好。</p>"},
+    {lo:0.2,   hi:0.6,   h:"<p>你偏向<strong>国家主权优先</strong>，认为国家利益是外交政策的主要考量，对多边机构约束主权的效果持保留态度。</p>"},
+    {lo:0.6,   hi:1.01,  h:"<p>你持<strong>强烈的主权现实主义</strong>立场，认为国家是国际体系的核心行为体，国家利益应始终优先于国际义务，对国际组织的权力扩张持系统性怀疑态度。</p>"}
+  ]}
+];
+
+function buildReport(nr) {
+  var cont = document.getElementById("rs");
+  cont.innerHTML = "";
+  for (var ri = 0; ri < RPT.length; ri++) {
+    var rd  = RPT[ri];
+    var m   = AM[rd.k];
+    var v   = nr[rd.k];
+    var ht  = rd.rows[rd.rows.length-1].h;
+    for (var ii = 0; ii < rd.rows.length; ii++) {
+      if (v >= rd.rows[ii].lo && v < rd.rows[ii].hi) { ht = rd.rows[ii].h; break; }
+    }
+    var card = document.createElement("div"); card.className = "rc";
+    var hdr  = document.createElement("div"); hdr.className = "rch";
+    hdr.onclick = function(){ toggleR(this); };
+    var dot  = document.createElement("div"); dot.className = "rcd"; dot.style.background = m.cl;
+    var tit  = document.createElement("div"); tit.className = "rct"; tit.textContent = rd.ti;
+    var arr  = document.createElement("div"); arr.className = "rca" + (ri===0?" op":""); arr.textContent = "v";
+    hdr.appendChild(dot); hdr.appendChild(tit); hdr.appendChild(arr);
+    var body = document.createElement("div"); body.className = "rcb" + (ri===0?" op":""); body.innerHTML = ht;
+    card.appendChild(hdr); card.appendChild(body);
+    cont.appendChild(card);
+  }
+}
+
+function toggleR(h) {
+  var b = h.nextSibling, a = h.querySelector(".rca");
+  var o = b.className.indexOf("op") > -1;
+  b.className = "rcb" + (o ? "" : " op");
+  a.className = "rca" + (o ? "" : " op");
+}
+
+/* ── 分享文本 ── */
+function buildShare(id, nr) {
+  var lines = ["[政治罗盘 Political Compass 2026]", "立场：" + id.nm, ""];
+  for (var i = 0; i < AK.length; i++) {
+    var k  = AK[i], m = AM[k], v = nr[k];
+    var av = Math.abs(v);
+    var pole;
+    if (av < 0.1)       { pole = "居中"; }
+    else if (av < 0.35) { pole = "偏" + (v > 0 ? m.R : m.L); }
+    else if (av < 0.65) { pole = v > 0 ? m.R : m.L; }
+    else                { pole = "强烈" + (v > 0 ? m.R : m.L); }
+    lines.push(m.nm + "：" + pole + " (" + (v >= 0 ? "+" : "") + (v*100).toFixed(0) + "%)");
+  }
+  lines.push("", "「" + id.tg + "」");
+  document.getElementById("sb").textContent = lines.join("\n");
+}
+
+/* ── 复制 ── */
+function doCopy() {
+  var text = document.getElementById("sb").textContent;
+  var btn  = document.getElementById("cpb");
+  function ok() {
+    btn.textContent = "已复制";
+    btn.className   = "sbt cp";
+    setTimeout(function(){ btn.textContent = "复制结果"; btn.className = "sbt"; }, 2200);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(ok).catch(function(){ fbCopy(text, ok); });
+  } else { fbCopy(text, ok); }
+}
+function fbCopy(t, cb) {
+  var ta = document.createElement("textarea");
+  ta.value = t; ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand("copy"); } catch(e) {}
+  document.body.removeChild(ta); cb();
+}
+
+/* ── 导航 ── */
+function goTo(id) {
+  var ids = ["si","sq","sr"];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (ids[i] === id) { el.className = el.className.replace(/\bhidden\b/g,"").trim(); }
+    else if (el.className.indexOf("hidden") < 0) { el.className += " hidden"; }
+  }
+  window.scrollTo(0, 0);
+}
+function doReset() {
+  goTo("si");
+  document.getElementById("pf").style.width = "0%";
+}
+</script>
+</div>
+</body>
+</html>
